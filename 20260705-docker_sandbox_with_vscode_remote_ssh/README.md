@@ -34,6 +34,11 @@ sbx run -d shell --name my-sandbox .
 
 `v4-connect.sh` は `.sbx_remote_ssh` を読み、必要なら sandbox を起動し、host port を publish してから VS Code Remote SSH を開きます。
 
+初回時は、ssh接続先が未知のホストであるとして、以下のダイアログが表示されます。
+yesと入力します（パスワード入力ダイアログとVS Codeは誤認しており、入力値はマスクされます）。
+
+![alt text](docs/unknown_host_dialog.png)
+
 ## 公開鍵
 
 既定では次の順で公開鍵を探します。
@@ -72,15 +77,8 @@ SBX_SSH_USER=agent
 SBX_INTERNAL_SSH_PORT=2222
 ```
 
-## 初回 SSH 接続
-
-初回は host key 確認で止まることがあります。`.sbx_remote_ssh` に書かれたポートを使って一度接続すると分かりやすいです。
-
-```bash
-ssh -p 12xxx agent@127.0.0.1
-```
-
-`yes` と入力して接続を許可してください。
+SBX_SSH_PORT は、毎回ランダムポートにすることもできますが、随時unknown hostとして検出されるため、設定で固定しています。
+必要に応じて変更してください。
 
 ## デバッグ
 
