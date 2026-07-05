@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# v3.sh
+# 公開鍵を検出して、spec.yamlをsedで置換して埋め込む
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"

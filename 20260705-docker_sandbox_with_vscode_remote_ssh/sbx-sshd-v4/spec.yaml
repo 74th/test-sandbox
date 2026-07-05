@@ -1,0 +1,50 @@
+schemaVersion: "1"
+kind: mixin
+name: sshd-user-v4
+displayName: SSH Server as agent
+description: Start OpenSSH server as agent for VS Code Remote SSH
+
+commands:
+  initFiles:
+    - path: /home/agent/.ssh/sshd_config
+      content: |
+        Port 2222
+        ListenAddress 0.0.0.0
+
+        HostKey /home/agent/.ssh/sshd/ssh_host_ed25519_key
+        PidFile /home/agent/.ssh/sshd/sshd.pid
+
+        PermitRootLogin no
+        PasswordAuthentication no
+        KbdInteractiveAuthentication no
+        PubkeyAuthentication yes
+        UsePAM no
+
+        AuthorizedKeysFile /home/agent/.ssh/authorized_keys
+        AllowUsers agent
+
+        PubkeyAcceptedAlgorithms +ssh-rsa,rsa-sha2-256,rsa-sha2-512
+        HostbasedAcceptedAlgorithms +ssh-rsa,rsa-sha2-256,rsa-sha2-512
+
+        X11Forwarding no
+        AllowTcpForwarding yes
+        PermitUserEnvironment no
+
+        Subsystem sftp /usr/lib/openssh/sftp-server
+      mode: "0600"
+      onlyIfMissing: true
+      description: User-level sshd config
+
+  startup:
+    - command:
+        [
+          "/bin/sh",
+          "-lc",
+          "set -eux; if ! command -v sshd >/dev/null 2>&1; then for i in $(seq 1 30); do if apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y openssh-server; then break; fi; if [ \"$i\" -eq 30 ]; then exit 1; fi; sleep 2; done; fi; install -d -m 700 -o agent -g agent /home/agent/.ssh; install -d -m 700 -o agent -g agent /home/agent/.ssh/sshd; if [ ! -f /home/agent/.ssh/sshd/ssh_host_ed25519_key ]; then ssh-keygen -t ed25519 -N '' -f /home/agent/.ssh/sshd/ssh_host_ed25519_key; fi; chown -R agent:agent /home/agent/.ssh; chmod 700 /home/agent/.ssh; chmod 700 /home/agent/.ssh/sshd; chmod 600 /home/agent/.ssh/sshd/ssh_host_ed25519_key; chmod 644 /home/agent/.ssh/sshd/ssh_host_ed25519_key.pub; printf 'installed\n' > /home/agent/.sbx-sshd-v4-installed; chown agent:agent /home/agent/.sbx-sshd-v4-installed; chmod 644 /home/agent/.sbx-sshd-v4-installed"
+        ]
+      user: "0"
+      description: Prepare OpenSSH and host key
+    - command: ["/usr/sbin/sshd", "-D", "-e", "-f", "/home/agent/.ssh/sshd_config"]
+      user: "1000"
+      background: true
+      description: Start SSH server as agent
