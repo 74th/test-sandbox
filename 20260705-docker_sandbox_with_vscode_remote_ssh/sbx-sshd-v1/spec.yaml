@@ -1,0 +1,68 @@
+schemaVersion: "1"
+kind: mixin
+name: sshd-user
+displayName: SSH Server as agent
+description: Start OpenSSH server as agent for VS Code Remote SSH
+
+commands:
+  install:
+    - command: |
+        set -eux
+
+        apt-get update
+        DEBIAN_FRONTEND=noninteractive apt-get install -y openssh-server
+
+        install -d -m 700 -o agent -g agent /home/agent/.ssh
+        install -d -m 700 -o agent -g agent /home/agent/.ssh/sshd
+
+        if [ ! -f /home/agent/.ssh/sshd/ssh_host_ed25519_key ]; then
+          ssh-keygen -t ed25519 -N '' -f /home/agent/.ssh/sshd/ssh_host_ed25519_key
+        fi
+
+        chown -R agent:agent /home/agent/.ssh
+        chmod 700 /home/agent/.ssh
+        chmod 700 /home/agent/.ssh/sshd
+        chmod 600 /home/agent/.ssh/sshd/ssh_host_ed25519_key
+        chmod 644 /home/agent/.ssh/sshd/ssh_host_ed25519_key.pub
+      user: "0"
+      description: Install OpenSSH and create user-owned host key
+
+  initFiles:
+    - path: /home/agent/.ssh/authorized_keys
+      content: |
+        ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCvkf2+E56XXsxBMlDBJuwM4v8pJ0FRsHKv65arfh7sjGAAl9yW3AWZyWneCCGH/emzoFq0/B6rquNjP+A7i1Kl5THsa2CTm2sLp23Zm7euV0PCdqIMP1GP91bCEXbht9iHYBq3aPBDI1BdzbBe/pndnPKFgQvK8mtvfXtLUpa4OJD0b+lnx0vbMKP3Xo2WRd8pc5QZKIEhDQ8Gq/IQN9j3Kbxf02ISxt3kyyRzfiw3wL0GhbeatMjDsNiABblx5WT+wiJjmegrFcb2nWKOKvcEd5pPlE1JRNhP6SyHz/UNmefRn3LPF+D5aI7LgOQuGyJVNdWsSxXLpuWp3CRbDhvB site@j74th.com
+      mode: "0600"
+      onlyIfMissing: true
+      description: Authorized SSH key for agent user
+
+    - path: /home/agent/.ssh/sshd_config
+      content: |
+        Port 2222
+        ListenAddress 0.0.0.0
+
+        HostKey /home/agent/.ssh/sshd/ssh_host_ed25519_key
+        PidFile /home/agent/.ssh/sshd/sshd.pid
+
+        PermitRootLogin no
+        PasswordAuthentication no
+        KbdInteractiveAuthentication no
+        PubkeyAuthentication yes
+        UsePAM no
+
+        AuthorizedKeysFile /home/agent/.ssh/authorized_keys
+        AllowUsers agent
+
+        X11Forwarding no
+        AllowTcpForwarding yes
+        PermitUserEnvironment no
+
+        Subsystem sftp /usr/lib/openssh/sftp-server
+      mode: "0600"
+      onlyIfMissing: true
+      description: User-level sshd config
+
+  startup:
+    - command: ["/usr/sbin/sshd", "-D", "-e", "-f", "/home/agent/.ssh/sshd_config"]
+      user: "1000"
+      background: true
+      description: Start SSH server as agent
