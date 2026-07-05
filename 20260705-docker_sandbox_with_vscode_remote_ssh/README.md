@@ -1,13 +1,13 @@
 # Docker Sandbox + VS Code Remote SSH kit
 
-`sbx-sshd-v3/spec.yaml` はそのまま repo に配布できるように、公開鍵本体を持たないテンプレート化された kit にしてあります。実行時に `v3-common.sh` がユーザーの公開鍵を読み取り、一時的な `spec.yaml` を生成して `sbx run --kit ...` に渡します。
+`sbx-sshd-v3/spec.yaml` はそのまま repo に配布できるように、公開鍵本体を持たないテンプレート化された kit にしてあります。実行時に `v3.sh` がユーザーの公開鍵を読み取り、一時的な `spec.yaml` を生成して `sbx run --kit ...` に渡します。
 
 ## 使い方
 
 最短では次で起動できます。
 
 ```bash
-./v3-all.sh
+./v3.sh
 ```
 
 既定では次の順で公開鍵を探します。
@@ -19,18 +19,10 @@
 明示したい場合は次のように指定します。
 
 ```bash
-PUBLIC_KEY_PATH="$HOME/.ssh/id_rsa.pub" ./v3-all.sh
+PUBLIC_KEY_PATH="$HOME/.ssh/id_rsa.pub" ./v3.sh
 ```
 
-内部では `sbx-sshd-v3/spec.yaml` をテンプレートとして使います。通常の起動入口は `v3-all.sh` です。
-
-ステップごとに実行する場合:
-
-```bash
-./v3-1-create.sh
-./v3-2-open_port.sh
-./v3-3-connect.sh
-```
+内部では `sbx-sshd-v3/spec.yaml` をテンプレートとして使います。起動入口は `v3.sh` だけです。
 
 ## 変更できる環境変数
 
@@ -46,7 +38,7 @@ PUBLIC_KEY_PATH=$HOME/.ssh/id_ed25519.pub
 例:
 
 ```bash
-SBX_SANDBOX_NAME=my-sbx SBX_SSH_PORT=2223 PUBLIC_KEY_PATH="$HOME/.ssh/id_rsa.pub" ./v3-all.sh
+SBX_SANDBOX_NAME=my-sbx SBX_SSH_PORT=2223 PUBLIC_KEY_PATH="$HOME/.ssh/id_rsa.pub" ./v3.sh
 ```
 
 ## 初回 SSH 接続
