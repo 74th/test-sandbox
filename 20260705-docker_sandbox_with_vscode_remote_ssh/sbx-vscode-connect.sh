@@ -6,7 +6,7 @@ REMOTE_SSH_FILE="${PWD}/.sbx_remote_ssh"
 SBX_WAIT_SECONDS="${SBX_WAIT_SECONDS:-30}"
 
 usage() {
-  echo "Run ./v4-include.sh SANDBOX_NAME first." >&2
+  echo "Run ./sbx-vscode-include.sh SANDBOX_NAME first." >&2
 }
 
 load_remote_ssh_file() {
@@ -73,7 +73,7 @@ main() {
   if ! wait_for_ssh_port 127.0.0.1 "${SBX_SSH_PORT}" "${SBX_WAIT_SECONDS}"; then
     echo "SSH port ${SBX_SSH_PORT} did not become ready." >&2
     sbx exec "${SBX_SANDBOX_NAME}" sh -lc "ps aux | grep '[s]shd' || true" >&2 || true
-    echo "If this host port is no longer usable, rerun ./v4-include.sh ${SBX_SANDBOX_NAME}." >&2
+    echo "If this host port is no longer usable, rerun ./sbx-vscode-include.sh ${SBX_SANDBOX_NAME}." >&2
     exit 1
   fi
 

@@ -1,6 +1,6 @@
 schemaVersion: "1"
 kind: mixin
-name: sshd-user-v4
+name: sshd-user
 displayName: SSH Server as agent
 description: Start OpenSSH server as agent for VS Code Remote SSH
 
@@ -40,7 +40,7 @@ commands:
         [
           "/bin/sh",
           "-lc",
-          "set -eux; if ! command -v sshd >/dev/null 2>&1; then for i in $(seq 1 30); do if apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y openssh-server; then break; fi; if [ \"$i\" -eq 30 ]; then exit 1; fi; sleep 2; done; fi; install -d -m 700 -o agent -g agent /home/agent/.ssh; install -d -m 700 -o agent -g agent /home/agent/.ssh/sshd; if [ ! -f /home/agent/.ssh/sshd/ssh_host_ed25519_key ]; then ssh-keygen -t ed25519 -N '' -f /home/agent/.ssh/sshd/ssh_host_ed25519_key; fi; chown -R agent:agent /home/agent/.ssh; chmod 700 /home/agent/.ssh; chmod 700 /home/agent/.ssh/sshd; chmod 600 /home/agent/.ssh/sshd/ssh_host_ed25519_key; chmod 644 /home/agent/.ssh/sshd/ssh_host_ed25519_key.pub; printf 'installed\n' > /home/agent/.sbx-sshd-v4-installed; chown agent:agent /home/agent/.sbx-sshd-v4-installed; chmod 644 /home/agent/.sbx-sshd-v4-installed"
+          "set -eux; if ! command -v sshd >/dev/null 2>&1; then for i in $(seq 1 30); do if apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y openssh-server; then break; fi; if [ \"$i\" -eq 30 ]; then exit 1; fi; sleep 2; done; fi; install -d -m 700 -o agent -g agent /home/agent/.ssh; install -d -m 700 -o agent -g agent /home/agent/.ssh/sshd; if [ ! -f /home/agent/.ssh/sshd/ssh_host_ed25519_key ]; then ssh-keygen -t ed25519 -N '' -f /home/agent/.ssh/sshd/ssh_host_ed25519_key; fi; chown -R agent:agent /home/agent/.ssh; chmod 700 /home/agent/.ssh; chmod 700 /home/agent/.ssh/sshd; chmod 600 /home/agent/.ssh/sshd/ssh_host_ed25519_key; chmod 644 /home/agent/.ssh/sshd/ssh_host_ed25519_key.pub; printf 'installed\n' > /home/agent/.sbx-sshd-installed; chown agent:agent /home/agent/.sbx-sshd-installed; chmod 644 /home/agent/.sbx-sshd-installed"
         ]
       user: "0"
       description: Prepare OpenSSH and host key
